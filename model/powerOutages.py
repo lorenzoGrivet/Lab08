@@ -42,7 +42,7 @@ class Event:
     def customers_affected(self):
         return self._customers_affected
 
-    @property
+
     def date_event_began(self):
         return self._date_event_began
 
@@ -63,4 +63,10 @@ class Event:
 
     def __hash__(self):
         return hash(self._id)
+
+
+    def __eq__(self, other):
+        return self._date_event_began == other._date_event_began
+
+
 

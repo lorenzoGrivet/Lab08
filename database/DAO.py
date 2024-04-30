@@ -37,6 +37,7 @@ class DAO():
         query = """select *
                 from poweroutages.poweroutages p 
                 where p.nerc_id =%s
+                order by p.date_event_began ASC
                 """
 
         cursor.execute(query, (nerc,))
