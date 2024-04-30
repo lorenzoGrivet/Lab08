@@ -49,26 +49,14 @@ class Model:
 
             for elem in pos:
 
-                a=False
-                #VINCOLI
-                somma = ((elem._date_event_finished-elem._date_event_began).total_seconds())/3600
-                for i in range(len(parziale)):
-                    somma += ((parziale[i]._date_event_finished - parziale[i]._date_event_began).total_seconds())/3600 # MANCANO ORE
+                if self.va_bene(parziale,elem,maxH,maxY):
 
-                if parziale==[] or ( (elem._date_event_finished.year - parziale[0]._date_event_began.year) < maxY  and somma < maxH):
-
-                    for i in parziale:
-                        if i._id == elem._id:
-                            a=True
-
-
-                    if not a:
-                        parziale.append(elem)
-                        parziale= sorted(parziale, key= lambda evento: evento._date_event_began)
-                        rimanenti=copy.deepcopy(pos)
-                        rimanenti.remove(elem)
-                        self.ricorsione(parziale, maxY, maxH, rimanenti)
-                        parziale.pop()
+                    parziale.append(elem)
+                    parziale= sorted(parziale, key= lambda evento: evento._date_event_began)
+                    rimanenti=copy.deepcopy(pos)
+                    rimanenti.remove(elem)
+                    self.ricorsione(parziale, maxY, maxH, rimanenti)
+                    parziale.pop()
 
 
     def calcola_persone(self,parziale):
@@ -92,4 +80,23 @@ class Model:
     @property
     def listNerc(self):
         return self._listNerc
+
+    def va_bene(self,parziale,elem,maxH,maxY):
+        if parziale==[]:
+            return True
+
+        somma = ((elem._date_event_finished-elem._date_event_began).total_seconds())/3600
+
+        for i in range(len(parziale)):
+            somma += ((parziale[i]._date_event_finished - parziale[i]._date_event_began).total_seconds())/3600
+
+            if parziale[i]._id == elem._id:
+                return False
+
+        if ( (elem._date_event_finished.year - parziale[0]._date_event_began.year) < maxY  and somma < maxH):
+            return True
+        else:
+            return False
+
+
 
