@@ -25,7 +25,7 @@ class Model:
     def ricorsione(self, parziale, maxY, maxH, pos):
 
         # TO FILL
-        a=False
+
         maxY=int(maxY)
         maxH=int(maxH)
 
@@ -49,14 +49,36 @@ class Model:
 
             for elem in pos:
 
-                if self.va_bene(parziale,elem,maxH,maxY):
+                rimanenti=copy.deepcopy(pos)
+                rimanenti.remove(elem)
+                pos.remove(elem)
 
+
+                if self.va_bene(parziale,elem,maxH,maxY):
                     parziale.append(elem)
                     parziale= sorted(parziale, key= lambda evento: evento._date_event_began)
-                    rimanenti=copy.deepcopy(pos)
-                    rimanenti.remove(elem)
+
                     self.ricorsione(parziale, maxY, maxH, rimanenti)
+                    # print("esco*********************************")
                     parziale.pop()
+
+            else:
+                # CONTEGGIO CLIENTI
+                conto = self.calcola_persone(parziale)
+
+                if conto > self.max_persone:
+                    self.max_persone = conto
+                    self._solBest = copy.deepcopy(parziale)
+
+                    a = ""
+                    for i in parziale:
+                        a += str(i._id) + " - "
+                    print(a)
+                    somma=0
+                    for i in range(len(parziale)):
+                        somma += ((parziale[i]._date_event_finished - parziale[i]._date_event_began).total_seconds()) / 3600
+                    print(str(self.max_persone)+" - "+str(somma))
+
 
 
     def calcola_persone(self,parziale):
@@ -86,7 +108,7 @@ class Model:
             return True
 
         somma = ((elem._date_event_finished-elem._date_event_began).total_seconds())/3600
-
+        # somma=0
         for i in range(len(parziale)):
             somma += ((parziale[i]._date_event_finished - parziale[i]._date_event_began).total_seconds())/3600
 
