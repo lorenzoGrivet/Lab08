@@ -13,14 +13,20 @@ class Controller:
         self.fillIDMap()
 
     def handleWorstCase(self, e):
-        # TO FILL
+        max_anni=self._view._txtYears.value
+        max_ore=self._view._txtHours.value
+        nerc=self._view._ddNerc.value
+
+
+        risultato=self._model.worstCase(int(nerc),max_anni,max_ore)
+
         pass
 
     def fillDD(self):
         nercList = self._model.listNerc
 
         for n in nercList:
-            self._view._ddNerc.options.append(ft.dropdown.Option(n))
+            self._view._ddNerc.options.append(ft.dropdown.Option(key=n._id,text=n))
         self._view.update_page()
 
     def fillIDMap(self):
