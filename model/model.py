@@ -18,21 +18,31 @@ class Model:
         # TO FILL
         parziale=[]
         self.loadEvents(nerc)
-        self.ricorsione(parziale,maxY,maxH,self._listEvents)
+        self.ricorsione(parziale,maxY,maxH,self._listEvents,0)
+        print(f"{self.print_parziale(self._solBest)}:  {self.max_persone}")
+
+        somma=0.0
+        for a in self._solBest:
+            somma+= ((a._date_event_finished-a._date_event_began).total_seconds())/3600
+
+
+        return self._solBest, self.max_persone,somma
+
 
 
         pass
-    def ricorsione(self, parziale, maxY, maxH, pos):
+    def ricorsione(self, parziale, maxY, maxH, rimanenti,livello):
 
         # TO FILL
 
         maxY=int(maxY)
         maxH=int(maxH)
 
+        # print(f"entro in {livello}")
 
         #terminale
-        if len(pos)==0:
-            print("*")
+        if len(rimanenti)==0:
+
             #CONTEGGIO CLIENTI
             conto = self.calcola_persone(parziale)
 
@@ -40,44 +50,37 @@ class Model:
                 self.max_persone=conto
                 self._solBest=copy.deepcopy(parziale)
 
-            a=""
-            for i in parziale:
-                a+= str(i._id)+" - "
-            print(a)
+                # a=""
+                # for i in parziale:
+                #     a+= str(i._id)+" - "
+                # print(a+"-----CONTO: "+str(conto))
+
+            return
 
         else:
 
-            for elem in pos:
+            for elem in (rimanenti) :
 
-                rimanenti=copy.deepcopy(pos)
-                rimanenti.remove(elem)
-                pos.remove(elem)
-
+                print(str(elem._id)+"elemento ciclo")
 
                 if self.va_bene(parziale,elem,maxH,maxY):
                     parziale.append(elem)
-                    parziale= sorted(parziale, key= lambda evento: evento._date_event_began)
 
-                    self.ricorsione(parziale, maxY, maxH, rimanenti)
-                    # print("esco*********************************")
+
+                    nuovi_rimanenti= copy.deepcopy(rimanenti)
+                    nuovi_rimanenti.remove(elem)
+
+                    rimanenti.remove(elem)
+
+                    # print(f"parziale prima di entrare in {livello+1}: {self.print_parziale(parziale)}")
+                    self.ricorsione(parziale, maxY, maxH, nuovi_rimanenti,livello+1)
+                    # print(f"parziale dopo di uscire da {livello + 1}: {self.print_parziale(parziale)}")
+
+                    # print(f"esco******  da {livello}")
                     parziale.pop()
-
-            else:
-                # CONTEGGIO CLIENTI
-                conto = self.calcola_persone(parziale)
-
-                if conto > self.max_persone:
-                    self.max_persone = conto
-                    self._solBest = copy.deepcopy(parziale)
-
-                    a = ""
-                    for i in parziale:
-                        a += str(i._id) + " - "
-                    print(a)
-                    somma=0
-                    for i in range(len(parziale)):
-                        somma += ((parziale[i]._date_event_finished - parziale[i]._date_event_began).total_seconds()) / 3600
-                    print(str(self.max_persone)+" - "+str(somma))
+                else:
+                    rimanenti.remove(elem)
+                    self.ricorsione(parziale, maxY, maxH, rimanenti,livello+1)
 
 
 
@@ -98,6 +101,12 @@ class Model:
         self._listNerc = DAO.getAllNerc()
 
 
+    def print_parziale(self,parziale):
+        s=""
+        for a in parziale:
+           s+= str(a._id)+" "
+
+        return s
 
     @property
     def listNerc(self):
@@ -108,14 +117,20 @@ class Model:
             return True
 
         somma = ((elem._date_event_finished-elem._date_event_began).total_seconds())/3600
-        # somma=0
+        anno_min=0
         for i in range(len(parziale)):
             somma += ((parziale[i]._date_event_finished - parziale[i]._date_event_began).total_seconds())/3600
 
             if parziale[i]._id == elem._id:
                 return False
 
-        if ( (elem._date_event_finished.year - parziale[0]._date_event_began.year) < maxY  and somma < maxH):
+            d=((parziale[i]._date_event_began).year)
+            if  d<anno_min or anno_min==0:
+                anno_min=parziale[i]._date_event_began.year
+
+
+
+        if ( (elem._date_event_finished.year - parziale[0]._date_event_began.year) <= maxY  and somma <= maxH):
             return True
         else:
             return False

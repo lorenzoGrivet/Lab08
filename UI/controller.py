@@ -20,6 +20,15 @@ class Controller:
 
         risultato=self._model.worstCase(int(nerc),max_anni,max_ore)
 
+        self._view._txtOut.clean()
+        self._view._txtOut.controls.append(ft.Text(f"Clienti affetti: {self._model.max_persone}"))
+        self._view._txtOut.controls.append(ft.Text(f"Somma: risultato[2]"))
+        for a in risultato[0]:
+            self._view._txtOut.controls.append(ft.Text(f"{a.__str__()}"))
+
+        self._view.update_page()
+
+
         pass
 
     def fillDD(self):
